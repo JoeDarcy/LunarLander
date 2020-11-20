@@ -37,15 +37,19 @@ typedef std::chrono::duration<float> TimeDiff;
 // GAME CONSTANTS (create player struct?)
 const int PlayerWidth = 2;		// Define player character width
 const int PlayerHeight = 3;		// Define player character height
-const int PlayerCharacters[PlayerWidth * PlayerHeight] =
+
+// Define player character shape 
+const char* PlayerCharacters =
 {
-	'_','_',		// Define player character shape 
-	'|','|',
-	'/','\\'		// Backslash double to display as one
+	R"(__)"		
+	R"(||)"
+	R"(/\)"
 };
+
+// Define player character colours
 const int PlayerColours[PlayerWidth * PlayerHeight] =
 {
-	0xF, 0xF,		// Define player character colours
+	0xF, 0xF,		
 	0xF, 0xF,
 	0xE, 0xE,
 };
