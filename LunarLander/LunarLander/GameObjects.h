@@ -10,6 +10,23 @@
 // STRUCTS
 struct Player
 {
+	// Functions
+	void Reset()		// Resets all player variable back to their original values to restart the game play
+	{
+		 xPos = SCREEN_WIDTH / 2;		
+		 yPos = 5;
+
+		// Lander acceleration
+		 isAccelerating = false;
+	     acceleration = 0.0f;
+
+		// Lander has landed successfully
+		 hasLanded = false;
+
+		// Lander has crashed
+		 hasCrashed = false;
+	}
+
 	// Constants
 	static const int WIDTH = 2;		// Define player character width
 	static const int HEIGHT = 3;		// Define player character height

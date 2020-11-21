@@ -166,10 +166,10 @@ void Update(float deltaTime)
 			ClearScreen(consoleBuffer);
 
 			// Print out menu options
-			WriteTextToBuffer(consoleBuffer, "1. PLAY", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2));
-			WriteTextToBuffer(consoleBuffer, "2. OPTIONS", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2) + 1);
-			WriteTextToBuffer(consoleBuffer, "3. SCOREBOARD", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2) + 2);
-			WriteTextToBuffer(consoleBuffer, "4. QUIT", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2) + 3);
+			WriteTextToBuffer(consoleBuffer, "1. PLAY", (SCREEN_WIDTH / 2) - 10, (SCREEN_HEIGHT / 2) - 10);
+			WriteTextToBuffer(consoleBuffer, "2. OPTIONS", (SCREEN_WIDTH / 2) - 10, (SCREEN_HEIGHT / 2) - 9);
+			WriteTextToBuffer(consoleBuffer, "3. SCOREBOARD", (SCREEN_WIDTH / 2) - 10, (SCREEN_HEIGHT / 2) -8);
+			WriteTextToBuffer(consoleBuffer, "4. QUIT", (SCREEN_WIDTH / 2) - 10, (SCREEN_HEIGHT / 2) - 7);
 
 			if (GetAsyncKeyState(KEY_1))
 			{
@@ -200,15 +200,15 @@ void Update(float deltaTime)
 		}
 		case PLAY:
 		{
-			// Get player input and quit game if escape is pressed
-			if (GetAsyncKeyState(KEY_ESC))	
-			{
-				exitGame = true;
-				//currentGameState = MENU;
-			}
-
 			if (!player.hasLanded && !player.hasCrashed)
 			{
+				// Get player input and quit game if escape is pressed
+				if (GetAsyncKeyState(KEY_ESC))
+				{
+					exitGame = true;
+					//currentGameState = MENU;
+				}
+
 				// Get player inputs
 				if (GetAsyncKeyState(KEY_W))		// Checks if player presses "W", moves character up if pressed
 				{
@@ -264,11 +264,13 @@ void Update(float deltaTime)
 				{
 					// Landed succeeded!
 					player.hasLanded = true;
+					currentGameState = GAME_OVER;
 				}
 				else if (bottomLeftChar != ' '|| bottomRightChar != ' ')
 				{
 					// Crashed!
 					player.hasCrashed = true;
+					currentGameState = GAME_OVER;
 				}
 			}
 			
@@ -297,6 +299,19 @@ void Update(float deltaTime)
 		}
 		case GAME_OVER:
 		{
+			// Get player input and quit game if escape is pressed
+			if (GetAsyncKeyState(KEY_ESC))
+			{
+				exitGame = true;				
+			}
+
+			// Get player input and quit game if enter is pressed
+			if (GetAsyncKeyState(KEY_ENTER))
+			{
+				player.Reset();
+				currentGameState = MENU;
+			}
+
 			// Draw game over text
 			if (player.hasLanded)
 			{
