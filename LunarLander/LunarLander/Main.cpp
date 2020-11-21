@@ -152,7 +152,7 @@ const int PlayerColours[PlayerWidth * PlayerHeight] =
 const int SplashWidth = 150;
 const int SplashHeight = 40;
 
-const char* SplashScreenCharacters =
+const char* SplashCharacters =
 {		// |1   Guide for background image spacing (line indicates position)																					|150
 		R"(     *       .                         .  *                                                     *                          *    .       *             )"
 		R"(                    *          .          .             *                  *               *        .                        .                    *   )"
@@ -197,10 +197,18 @@ const char* SplashScreenCharacters =
 };
 
 const int KeyEsc = VK_ESCAPE;
+
+// Player movement keys
 const int KeyW = 'W';
 const int KeyA = 'A';
 const int KeyS = 'S';
 const int KeyD = 'D';
+
+// Menu option keys
+const int Key1 = '1';
+const int Key2 = '2';
+const int Key3 = '3';
+const int Key4 = '4';
 
 // ENUMS
 enum GAME_STATE
@@ -231,6 +239,7 @@ Time previousFrameTime = HiResClock::now();
 
 // Current game state
 GAME_STATE currentGameState = SPLASH;
+float splashDuration = 0.0f;
 
 // FUNCTIONS
 void Update();
@@ -283,13 +292,52 @@ void Update()
 	{
 		case SPLASH:
 		{
+			// Calculate current splash duration
+			splashDuration += deltaTime;
 
+			if (splashDuration < 3.0f)
+			{
+				// Draw splash image to screen					// No colours defined yet
+				WriteImageToBuffer(consoleBuffer, SplashCharacters, nullptr, SplashHeight, SplashWidth, 0, 0);
+			}
+			else
+			{
+				//Change to menu state
+				splashDuration = 0.0f;		// Reset splash duration timer, (incase of reuse)
+				currentGameState = MENU;
+			}
 
 			break;
 		}
 		case MENU:
 		{
-			// TODO: Menu
+			// Clear any previous images from the screen
+			ClearScreen(consoleBuffer);
+
+			// Print out menu options
+			WriteTextToBuffer(consoleBuffer, "1. PLAY", (WIDTH / 2), (HEIGHT / 2));
+			WriteTextToBuffer(consoleBuffer, "2. OPTIONS", (WIDTH / 2), (HEIGHT / 2) + 1);
+			WriteTextToBuffer(consoleBuffer, "3. SCOREBOARD", (WIDTH / 2), (HEIGHT / 2) + 2);
+			WriteTextToBuffer(consoleBuffer, "4. QUIT", (WIDTH / 2), (HEIGHT / 2) + 3);
+
+			if (GetAsyncKeyState(Key1))
+			{
+				currentGameState = PLAY;
+			}
+			else if (GetAsyncKeyState(Key2))
+			{
+				// TODO: Options menu
+				currentGameState = OPTIONS;
+			}
+			else if (GetAsyncKeyState(Key3))
+			{
+				// TODO: Scoreboard
+				currentGameState = SCOREBOARD;
+			}
+			else if (GetAsyncKeyState(Key4))
+			{
+				exitGame = true;
+			}
 
 			break;
 		}
