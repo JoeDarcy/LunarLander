@@ -32,19 +32,20 @@ typedef std::chrono::high_resolution_clock HiResClock;
 typedef std::chrono::duration<float> TimeDiff;
 
 // GAME CONSTANTS (player struct GameObjects.h)
-const int KeyEsc = VK_ESCAPE;
+const int KEY_ESC = VK_ESCAPE;
+const int KEY_ENTER = VK_RETURN;
 
 // Player movement keys
-const int KeyW = 'W';
-const int KeyA = 'A';
-const int KeyS = 'S';
-const int KeyD = 'D';
+const int KEY_W = 'W';
+const int KEY_A = 'A';
+const int KEY_S = 'S';
+const int KEY_D = 'D';
 
 // Menu option keys
-const int Key1 = '1';
-const int Key2 = '2';
-const int Key3 = '3';
-const int Key4 = '4';
+const int KEY_1 = '1';
+const int KEY_2 = '2';
+const int KEY_3 = '3';
+const int KEY_4 = '4';
 
 // ENUMS
 enum GAME_STATE
@@ -62,21 +63,11 @@ enum GAME_STATE
 // Bool for exiting the main game loop
 bool exitGame = false;
 
-// Time between each frame
-float deltaTime = 0.0f;
-
-// Total number of frames that have elapsed since starting the game
-unsigned int frameCounter = 0;		// Unsigned can't be negative
-
-// Sets "Time" to the current time on the HiResClock
-Time previousFrameTime = HiResClock::now();
-
 // Current game state
 GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build
  
 
 // Connect struct back into the main game 
-
 // Background
 Background background;
 
@@ -85,7 +76,8 @@ Player player;
 
 
 // FUNCTIONS
-void Update();
+void Initialise();
+void Update(float deltaTime);
 void Draw();
 int ClampInt(int intToClamp, int lowerLimit, int upperLimit);
 float ClampFloat(float floatToClamp, float lowerLimit, float upperLimit);
@@ -96,28 +88,26 @@ void WriteTextToBuffer(CHAR_INFO* consoleBuffer, std::string stringToPrint, int 
 
 int main()
 {
-	// Set the console title
-	SetConsoleTitle(L"Title of my Console Window");
+	// Initialise the console window
+	Initialise();
 
-	// Set screen buffer size
-	SetConsoleScreenBufferSize(wHnd, bufferSize);
-
-	// Set up the window size
-	SetConsoleWindowInfo(wHnd, TRUE, &windowSize);
+	// Initialise variables
+	float deltaTime = 0.0f;
+	Time currentFrameTime = HiResClock::now();
+	Time previousFrameTime = HiResClock::now();
 
 	// Display characters to the console window, (main game loop)
 	while (!exitGame)
 	{
 		// Calculate delta time (time since last frame)
-		Time  currentFrameTime = HiResClock::now();
+		currentFrameTime = HiResClock::now();
 		TimeDiff diff = currentFrameTime - previousFrameTime;
 		deltaTime = diff.count();
-		frameCounter++;
 
 		if (deltaTime >= (1.0f / FRAME_RATE))
 		{
 			// Calls the Update function for the application
-			Update();
+			Update(deltaTime);
 
 			// Cache the timestamp of this frame
 			previousFrameTime = currentFrameTime;	
@@ -129,8 +119,21 @@ int main()
 	return 0;
 }
 
+// Call Initialise function
+void Initialise()
+{
+	// Set the console title
+	SetConsoleTitle(L"Title of my Console Window");
+
+	// Set screen buffer size
+	SetConsoleScreenBufferSize(wHnd, bufferSize);
+
+	// Set up the window size
+	SetConsoleWindowInfo(wHnd, TRUE, &windowSize);
+}
+
 // Update function for the main game loop
-void Update()
+void Update(float deltaTime)
 {
 	// Switch depending on the current game state
 	switch (currentGameState)
@@ -168,21 +171,21 @@ void Update()
 			WriteTextToBuffer(consoleBuffer, "3. SCOREBOARD", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2) + 2);
 			WriteTextToBuffer(consoleBuffer, "4. QUIT", (SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2) + 3);
 
-			if (GetAsyncKeyState(Key1))
+			if (GetAsyncKeyState(KEY_1))
 			{
 				currentGameState = PLAY;
 			}
-			else if (GetAsyncKeyState(Key2))
+			else if (GetAsyncKeyState(KEY_2))
 			{
 				// TODO: Options menu
 				currentGameState = OPTIONS;
 			}
-			else if (GetAsyncKeyState(Key3))
+			else if (GetAsyncKeyState(KEY_3))
 			{
 				// TODO: Scoreboard
 				currentGameState = SCOREBOARD;
 			}
-			else if (GetAsyncKeyState(Key4))
+			else if (GetAsyncKeyState(KEY_4))
 			{
 				exitGame = true;
 			}
@@ -198,7 +201,7 @@ void Update()
 		case PLAY:
 		{
 			// Get player input and quit game if escape is pressed
-			if (GetAsyncKeyState(KeyEsc))	
+			if (GetAsyncKeyState(KEY_ESC))	
 			{
 				exitGame = true;
 				//currentGameState = MENU;
@@ -207,15 +210,15 @@ void Update()
 			if (!player.hasLanded && !player.hasCrashed)
 			{
 				// Get player inputs
-				if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
+				if (GetAsyncKeyState(KEY_W))		// Checks if player presses "W", moves character up if pressed
 				{
 					player.isAccelerating = true;
 				}
-				if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
+				if (GetAsyncKeyState(KEY_A))	// Checks if player presses "A", moves character left if pressed
 				{
 					--player.xPos;
 				}
-				if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
+				if (GetAsyncKeyState(KEY_D))	// Checks if player presses "D", moves character right if pressed
 				{
 					++player.xPos;
 				}
@@ -262,7 +265,7 @@ void Update()
 					// Landed succeeded!
 					player.hasLanded = true;
 				}
-				else if (bottomLeftChar != ' ' || bottomRightChar != ' ')
+				else if (bottomLeftChar != ' '|| bottomRightChar != ' ')
 				{
 					// Crashed!
 					player.hasCrashed = true;
@@ -279,16 +282,6 @@ void Update()
 			// Draw player image, (sprite)
 			WriteImageToBuffer(consoleBuffer, player.CHARACTERS, player.COLOURS, player.HEIGHT, player.WIDTH, player.xPos, player.yPos);
 
-			// Draw game over text
-			if (player.hasLanded)
-			{
-				WriteTextToBuffer(consoleBuffer, "THE EAGLE HAS LANDED!", (SCREEN_WIDTH / 2) - 15, SCREEN_HEIGHT / 2);
-			}
-			else if (player.hasCrashed)
-			{
-				WriteTextToBuffer(consoleBuffer, "HOUSTON, WE HAVE A PROBLEM!", (SCREEN_WIDTH / 2) - 18, SCREEN_HEIGHT / 2);
-			}
-
 			// Draw UI text
 			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
 			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
@@ -304,7 +297,15 @@ void Update()
 		}
 		case GAME_OVER:
 		{
-			// TODO: Game over screen
+			// Draw game over text
+			if (player.hasLanded)
+			{
+				WriteTextToBuffer(consoleBuffer, "THE EAGLE HAS LANDED!", (SCREEN_WIDTH / 2) - 15, SCREEN_HEIGHT / 2);
+			}
+			else if (player.hasCrashed)
+			{
+				WriteTextToBuffer(consoleBuffer, "HOUSTON, WE HAVE A PROBLEM!", (SCREEN_WIDTH / 2) - 18, SCREEN_HEIGHT / 2);
+			}
 
 			break;
 		}
