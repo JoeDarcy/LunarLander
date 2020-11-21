@@ -1,11 +1,8 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
-// DEFINES
-#define SCREEN_WIDTH 150
-#define SCREEN_HEIGHT 40
-#define FRAME_RATE 5  // Lower values, (around 5) will give a more old school Atari feel to the gameplay
-
+// Headers
+#include "Constants.h"
 
 // STRUCTS
 struct Player
@@ -46,12 +43,6 @@ struct Player
 		0xF, 0xF,
 		0xE, 0xE,
 	};
-
-	// Lander acceleration rate
-	const float ACCELERATION_RATE = 0.5f;
-
-	// Lander deceleration rate
-	const float DECELERATION_RATE = 0.2f;
 
 	// Variables
 	int xPos = SCREEN_WIDTH / 2;		// Screen width. Not player width. Different from tutorial
