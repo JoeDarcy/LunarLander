@@ -370,73 +370,78 @@ void Update()
 		}
 		case PLAY:
 		{
-			// Get player input
-			if (GetAsyncKeyState(KeyEsc))	// Checks if player presses "Escape", quits game if pressed
+			// Get player input and quit game if escape is pressed
+			if (GetAsyncKeyState(KeyEsc))	
 			{
 				exitGame = true;
 			}
-			if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
-			{
-				isAccelerating = true;
-			}
-			if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
-			{
-				--playerXPos;
-			}
-			if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
-			{
-				++playerXPos;
-			}
 
-			// Should lander accelerate?
-			if (isAccelerating)
+			if (!hasLanded && !hasCrashed)
 			{
-				landerAcceleration += (ACCELERATION_RATE * deltaTime);
+				// Get player inputs
+				if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
+				{
+					isAccelerating = true;
+				}
+				if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
+				{
+					--playerXPos;
+				}
+				if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
+				{
+					++playerXPos;
+				}
+
+				// Should lander accelerate?
+				if (isAccelerating)
+				{
+					landerAcceleration += (ACCELERATION_RATE * deltaTime);
+				}
+				else
+				{
+					landerAcceleration -= (DECELERATION_RATE * deltaTime);
+				}
+
+				// Reset acceleration flag, (bool)
+				isAccelerating = false;
+
+				// Clamp lander acceleration
+				landerAcceleration = ClampFloat(landerAcceleration, 0.0f, 1.5f);
+
+				// Apply acceleration to the lander
+				if (landerAcceleration >= 1.0f)			// TODO: Remove magic number, (replace with a const)
+				{
+					playerYPos--;
+				}
+				else if (landerAcceleration < 0.5f)		// TODO: Remove magic number, (replace with a const)
+				{
+					playerYPos++;
+				}
+
+				// Clamp player input (stop them leaving the window and causing an error)
+				playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
+				playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
+
+				// Get the two character under the landing gear of the lander
+				char bottomLeftChar = BackgroundCharacters[playerXPos + WIDTH * (playerYPos + (PlayerHeight - 1))];
+				char bottomRightChar = BackgroundCharacters[(playerXPos + (PlayerWidth - 1)) + WIDTH * (playerYPos + (PlayerHeight - 1))];
+
+				// Did we land or crash?
+
+				// Landed
+				if (bottomLeftChar == '_' && bottomRightChar == '_')
+				{
+					// Landed succeeded!
+					hasLanded = true;
+				}
+				else if (bottomLeftChar != ' ' || bottomRightChar != ' ')
+				{
+					// Crashed!
+					hasCrashed = true;
+				}
 			}
-			else
-			{
-				landerAcceleration -= (DECELERATION_RATE * deltaTime);
-			}
-
-			// Reset acceleration flag, (bool)
-			isAccelerating = false;
-
-			// Clamp lander acceleration
-			landerAcceleration = ClampFloat(landerAcceleration, 0.0f, 1.5f);
-
-			// Apply acceleration to the lander
-			if (landerAcceleration >= 1.0f)			// TODO: Remove magic number, (replace with a const)
-			{
-				playerYPos--;
-			}
-			else if (landerAcceleration < 0.5f)		// TODO: Remove magic number, (replace with a const)
-			{
-				playerYPos++;
-			}
-
-			// Clamp player input (stop them leaving the window and causing an error)
-			playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
-			playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
-
-			// Get the two character under the landing gear of the lander
-			char bottomLeftChar = BackgroundCharacters[playerXPos + WIDTH * (playerYPos + (PlayerHeight - 1))];
-			char bottomRightChar = BackgroundCharacters[(playerXPos + (PlayerWidth -1)) + WIDTH * (playerYPos + (PlayerHeight - 1))];
-
-			// Did we land or crash?
 			
-			// Landed
-			if (bottomLeftChar == '_' && bottomRightChar == '_')
-			{
-				// Landed succeeded!
-				hasLanded = true;
-			}
-			else if (bottomLeftChar != ' ' || bottomRightChar != ' ')
-			{
-				// Crashed!
-				hasCrashed = true;
-			}
 			
-
 			// Clear the previous "frame" before we start to build the next one
 			ClearScreen(consoleBuffer);
 
