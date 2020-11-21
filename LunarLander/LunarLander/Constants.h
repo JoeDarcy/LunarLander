@@ -2,7 +2,7 @@
 #define CONSTANTS_H
 
 // INCLUDES
-#include <windows.h>
+#include <Windows.h>
 
 // DEFINES
 #define SCREEN_WIDTH 150
@@ -28,5 +28,7 @@ const int KEY_4 = '4';
 const float ACCELERATION_RATE = 0.5f;
 // Lander deceleration rate
 const float DECELERATION_RATE = 0.2f;
+// Lander fuel consumption rate
+const float FUEL_CONSUMPTION_RATE = 1.0f;
 
 #endif // !CONSTANTS_H

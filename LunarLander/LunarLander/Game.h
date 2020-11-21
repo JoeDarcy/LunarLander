@@ -22,8 +22,7 @@ private:
 		MENU,
 		OPTIONS,
 		PLAY,
-		SCOREBOARD,
-		GAME_OVER,
+		SCOREBOARD
 	};
 
 	// Console variables
@@ -32,7 +31,6 @@ private:
 
 	// A COORD struct for specifying the console's screen buffer dimensions
 	COORD bufferSize = { SCREEN_WIDTH, SCREEN_HEIGHT };
-	CONSOLE_SCREEN_BUFFER_INFO SBInfo;
 
 	// Setting up different variables for passing to WriteConsoleOutput
 	COORD characterBufferSize = { SCREEN_WIDTH,SCREEN_HEIGHT };
@@ -56,6 +54,9 @@ private:
 
 	// Player
 	Player player;
+
+	// Explosion
+	Explosion explosion;
 };
 
 

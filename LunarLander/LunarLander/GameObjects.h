@@ -57,6 +57,32 @@ struct Player
 
 	// Lander has crashed
 	bool hasCrashed = false;
+
+	// Lander fuel
+	float fuel = 50;
+};
+
+struct Explosion
+{
+	static const int WIDTH = 3;
+	static const int HEIGHT = 3;
+	// Explosion frame 1
+	const char* CHARACTERS_1 ={
+		R"(\ /)"		// Values must match explosion width & height if sprite is changed
+		R"(-|-)"
+		R"(/ \)"
+	};
+	// Explosion frame 2
+	const char* CHARACTERS_2 = {
+		R"(;^>)"		// Values must match explosion width & height if sprite is changed
+		R"(|#/)"		// Make empty maybe?
+		R"(-|\)"
+	};
+	const int COLOURS[WIDTH * HEIGHT] = {
+		0xE, 0xE, 0xE,
+		0xE, 0xE, 0xE,
+		0xE, 0xE, 0xE,
+	};
 };
 
 struct Background
