@@ -100,7 +100,7 @@ void Game::Update(float deltaTime)
 			}
 
 			// Get player input and quit game if enter is pressed
-			if (GetAsyncKeyState(KEY_ENTER))
+			if (player.hasCrashed && GetAsyncKeyState(KEY_ENTER))
 			{
 				player.Reset();
 				currentGameState = MENU;
@@ -121,6 +121,26 @@ void Game::Update(float deltaTime)
 					player.isAccelerating = true;
 					// Expend fuel
 					player.fuel -= FUEL_CONSUMPTION_RATE;
+
+					// Draw thrusters animation if accelerating
+					if (player.isAccelerating)
+					{
+						static float thrusterFlashTimer = 0.0f;
+
+						thrusterFlashTimer += deltaTime;
+
+						if (thrusterFlashTimer >= 0.2f)
+						{
+							// Draw thrusters frame 1
+							WriteImageToBuffer(consoleBuffer,  thrusters.CHARACTERS_1, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos + 1, player.yPos - 3);		// Draw order bug, drawing behind player / background?
+							thrusterFlashTimer = 0.0f;
+						}
+						else
+						{
+							// Draw thrusters frame 2
+							WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_2, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos, player.yPos);
+						}
+					}
 				}
 				if (GetAsyncKeyState(KEY_A))	// Checks if player presses "A", moves character left if pressed
 				{

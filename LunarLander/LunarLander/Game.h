@@ -57,6 +57,9 @@ private:
 
 	// Explosion
 	Explosion explosion;
+
+	// Thrusters
+	Thrusters thrusters;
 };
 
 

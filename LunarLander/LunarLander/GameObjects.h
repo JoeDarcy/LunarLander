@@ -62,6 +62,26 @@ struct Player
 	float fuel = 50;
 };
 
+struct Thrusters
+{
+	static const int WIDTH = 3;
+	static const int HEIGHT = 2;
+	// Thrusters frame 1
+	const char* CHARACTERS_1 = {
+		R"(\#/)"		// Values must match thrusters width & height if sprite is changed
+		R"( | )"
+	};
+	// Thrusters frame 2
+	const char* CHARACTERS_2 = {
+		R"(- -)"		// Values must match thrusters width & height if sprite is changed
+		R"(   )"		// Make empty maybe?
+	};
+	const int COLOURS[WIDTH * HEIGHT] = {
+		0xE, 0xE, 0xE,
+		0xE, 0xE, 0xE,
+	};
+};
+
 struct Explosion
 {
 	static const int WIDTH = 3;
