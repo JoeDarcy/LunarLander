@@ -148,12 +148,70 @@ const int PlayerColours[PlayerWidth * PlayerHeight] =
 };
 */
 
+// Splash screen characters
+const int SplashWidth = 150;
+const int SplashHeight = 40;
+
+const char* SplashScreenCharacters =
+{		// |1   Guide for background image spacing (line indicates position)																					|150
+		R"(     *       .                         .  *                                                     *                          *    .       *             )"
+		R"(                    *          .          .             *                  *               *        .                        .                    *   )"
+		R"(                                   *                                    *                                       *                   *       .         )"
+		R"(         *                                                                     *                     *             .                                  )"
+		R"(       .                                              *                                                         .        *                            )"
+		R"(  *              \\   *        //       //\\        ||             ||   *        .||==========   \\      //          .                                )"
+		R"(                  \\          //   .   //  \\     * ||             ||             ||              \\   *//          *              .                  )"
+		R"(             *   . \\        //       //    \\      ||       .     ||       *     ||               \\  //                        *               *    )"
+		R"(                    \\      //       //      \\     ||   .         ||             ||======      .   \\//                                              )"
+		R"(              *      \\    // *     //========\\    ||             ||       *     ||                 ||     *                               *         )"
+		R"(   *                  \\  //     * //         *\\   ||             ||             ||                 ||                 *             .               )"
+		R"(                .      \\//       //            \\  ||========== * ||==========   ||==========       ||             *                              *  )"
+		R"(             *                   .                                                              .                   .                      .          )"
+		R"(          *.                                                             *              *                                  *                          )"
+		R"(                                                                      *            *                      *                             *             )"
+		R"(                             *              . *                                                                                          .            )"
+		R"( *  .             //=======\\            //\\   .           //\\      //\\        ||==========    //=======    .                                      )"
+		R"(                 //         \\          //  \\             //  \\    //  \\       ||           * ||                         *           .             )"
+		R"(                 ||    *    .          //    \\           //    \\  //    \\      ||             \\=======            .                     *         )"
+		R"(       *         ||                   //      \\         //      \\//      \\     ||======                \\                                          )"
+		R"(                 \\.      ===||      //========\\       //                  \\    ||                      ||                                          )"
+		R"(                  \\        //      //          \\     //                    \\   ||        *            //                  *                    .   )"
+		R"(    .    *         \\===== //      //  *         \\   //                      \\  ||==========   =======//                                            )"
+		R"(                                                     /. ... .. ..... .. ..... ..\       _.                                 .                          )"
+		R"(                                                    /... .. ..... ... .... .... .\     / \                            .                               )"
+		R"(                         .                         /..............................\.../   \     ____                                                  )"
+		R"(      *                                           /................................../. .. \   /    \                                    .            )"
+		R"(                                    ___          /....................................... ..\ /  . . \__        *                                    )"
+		R"(                                   /   \        /............................................/.. ..... ..\                                            )"
+		R"(                                  /     \      /.................................................. ..... .\                                       __  )"
+		R"(                                 /. . . .\    /............................................................\                  _____              /  \ )"
+		R"(                                /.. .. . .\  /..............................................................\                /     \            /. . \)"
+		R"(                    ____       /. .. .. .. ./................................................................\              /       \          /... ..)"
+		R"(                   /    \     /............/..................................................................\            / . . . . \        /..... .)"
+		R"(                  /      \   /............/....................................................................\          /... ... ...\      /........)"
+		R"(     ___         /. . . . \ /...................................................................................\        /.............\____/.........)"
+		R"(    /   \       /.. .. . . /.....................................................................................\      /................../..........)"
+		R"(   /     \     /..................................................................................................\____/..............................)"
+		R"(  /. . . .\___/......................................................................................................./...............................)"
+		R"(_/.........../........................................................................................................................................)"
+};
+
 const int KeyEsc = VK_ESCAPE;
 const int KeyW = 'W';
 const int KeyA = 'A';
 const int KeyS = 'S';
 const int KeyD = 'D';
 
+// ENUMS
+enum GAME_STATE
+{
+	SPLASH,
+	MENU,
+	OPTIONS,	
+	PLAY,
+	SCOREBOARD,
+	GAME_OVER,
+};
 
 // GAME VARIABLES
 int playerXPos = 0;
@@ -171,6 +229,8 @@ unsigned int frameCounter = 0;		// Unsigned can't be negative
 // Sets "Time" to the current time on the HiResClock
 Time previousFrameTime = HiResClock::now();
 
+// Current game state
+GAME_STATE currentGameState = SPLASH;
 
 // FUNCTIONS
 void Update();
@@ -218,45 +278,88 @@ int main()
 // Update function for the main game loop
 void Update()
 {
-	// Get player input
-	if (GetAsyncKeyState(KeyEsc))	// Checks if player presses "Escape", quits game if pressed
+	// Switch depending on the current game state
+	switch (currentGameState)
 	{
-		exitGame = true;
-	}
-	if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
-	{
-		--playerYPos;
-	}
-	if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
-	{
-		--playerXPos;
-	}
-	if (GetAsyncKeyState(KeyS))	// Checks if player presses "S", moves character down if pressed
-	{
-		++playerYPos;
-	}
-	if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
-	{
-		++playerXPos;
-	}
+		case SPLASH:
+		{
 
-	// Clamp player input (stop them leaving the window and causing an error)
-	playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
-	playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
 
-	// Clear the previous "frame" before we start to build the next one
-	ClearScreen(consoleBuffer);
+			break;
+		}
+		case MENU:
+		{
+			// TODO: Menu
 
-	// Draw background image
-	WriteImageToBuffer(consoleBuffer, BackgroundCharacters, nullptr, HEIGHT, WIDTH, 0, 0);
+			break;
+		}
+		case OPTIONS:
+		{
+			// TODO: Options menu
 
-	// Draw player image, (sprite)
-	WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
+			break;
+		}
+		case PLAY:
+		{
+			// Get player input
+			if (GetAsyncKeyState(KeyEsc))	// Checks if player presses "Escape", quits game if pressed
+			{
+				exitGame = true;
+			}
+			if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
+			{
+				--playerYPos;
+			}
+			if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
+			{
+				--playerXPos;
+			}
+			if (GetAsyncKeyState(KeyS))	// Checks if player presses "S", moves character down if pressed
+			{
+				++playerYPos;
+			}
+			if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
+			{
+				++playerXPos;
+			}
 
-	// Draw UI text
-	WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
-	WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
-	WriteTextToBuffer(consoleBuffer, "FUEL: ", 1, 2);
+			// Clamp player input (stop them leaving the window and causing an error)
+			playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
+			playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
+
+			// Clear the previous "frame" before we start to build the next one
+			ClearScreen(consoleBuffer);
+
+			// Draw background image
+			WriteImageToBuffer(consoleBuffer, BackgroundCharacters, nullptr, HEIGHT, WIDTH, 0, 0);
+
+			// Draw player image, (sprite)
+			WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
+
+			// Draw UI text
+			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
+			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
+			WriteTextToBuffer(consoleBuffer, "FUEL: ", 1, 2);
+
+			break;
+		}
+		case SCOREBOARD:
+		{
+			// TODO: Scoreboard
+
+			break;
+		}
+		case GAME_OVER:
+		{
+			// TODO: Game over screen
+
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 }
 
 // Draw funtion for rendering the buffer to the screen
