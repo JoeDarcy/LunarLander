@@ -59,13 +59,11 @@ enum GAME_STATE
 };
 
 // GAME VARIABLES
-
 // Bool for exiting the main game loop
 bool exitGame = false;
 
 // Current game state
-GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build
- 
+GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build 
 
 // Connect struct back into the main game 
 // Background
@@ -316,10 +314,12 @@ void Update(float deltaTime)
 			if (player.hasLanded)
 			{
 				WriteTextToBuffer(consoleBuffer, "THE EAGLE HAS LANDED!", (SCREEN_WIDTH / 2) - 15, SCREEN_HEIGHT / 2);
+				WriteTextToBuffer(consoleBuffer, "Press 'Enter' to return to menu...", (SCREEN_WIDTH / 2) - 21, (SCREEN_HEIGHT / 2) + 1);
 			}
 			else if (player.hasCrashed)
 			{
 				WriteTextToBuffer(consoleBuffer, "HOUSTON, WE HAVE A PROBLEM!", (SCREEN_WIDTH / 2) - 18, SCREEN_HEIGHT / 2);
+				WriteTextToBuffer(consoleBuffer, "Press 'Enter' to return to menu...", (SCREEN_WIDTH / 2) - 21, (SCREEN_HEIGHT / 2) + 1);
 			}
 
 			break;
