@@ -37,12 +37,12 @@ struct Player
 	const float DECELERATION_RATE = 0.2f;
 
 	// Variables
-	int XPos = SCREEN_WIDTH / 2;		// Screen width. Not player width. Different from tutorial
-	int YPos = 5;
+	int xPos = SCREEN_WIDTH / 2;		// Screen width. Not player width. Different from tutorial
+	int yPos = 5;
 
 	// Lander acceleration
 	bool isAccelerating = false;
-	float landerAcceleration = 0.0f;
+	float acceleration = 0.0f;
 
 	// Lander has landed successfully
 	bool hasLanded = false;

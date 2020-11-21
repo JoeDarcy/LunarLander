@@ -74,15 +74,15 @@ Time previousFrameTime = HiResClock::now();
 // Current game state
 GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build
  
+
 // Connect struct back into the main game 
-// Splash
-Splash splash;
 
 // Background
 Background background;
 
 // Player
 Player player;
+
 
 // FUNCTIONS
 void Update();
@@ -137,6 +137,9 @@ void Update()
 	{
 		case SPLASH:
 		{
+			// Create a new splash screen
+			static Splash splash;
+
 			// Calculate current splash duration
 			splash.Duration += deltaTime;
 
@@ -210,46 +213,46 @@ void Update()
 				}
 				if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
 				{
-					--player.XPos;
+					--player.xPos;
 				}
 				if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
 				{
-					++player.XPos;
+					++player.xPos;
 				}
 
 				// Should lander accelerate?
 				if (player.isAccelerating)
 				{
-					player.landerAcceleration += (player.ACCELERATION_RATE * deltaTime);
+					player.acceleration += (player.ACCELERATION_RATE * deltaTime);
 				}
 				else
 				{
-					player.landerAcceleration -= (player.DECELERATION_RATE * deltaTime);
+					player.acceleration -= (player.DECELERATION_RATE * deltaTime);
 				}
 
 				// Reset acceleration flag, (bool)
 				player.isAccelerating = false;
 
 				// Clamp lander acceleration
-				player.landerAcceleration = ClampFloat(player.landerAcceleration, 0.0f, 1.5f);
+				player.acceleration = ClampFloat(player.acceleration, 0.0f, 1.5f);
 
 				// Apply acceleration to the lander
-				if (player.landerAcceleration >= 1.0f)			// TODO: Remove magic number, (replace with a const)
+				if (player.acceleration >= 1.0f)			// TODO: Remove magic number, (replace with a const)
 				{
-					player.YPos--;
+					player.yPos--;
 				}
-				else if (player.landerAcceleration < 0.5f)		// TODO: Remove magic number, (replace with a const)
+				else if (player.acceleration < 0.5f)		// TODO: Remove magic number, (replace with a const)
 				{
-					player.YPos++;
+					player.yPos++;
 				}
 
 				// Clamp player input (stop them leaving the window and causing an error)
-				player.XPos = ClampInt(player.XPos, 0, (SCREEN_WIDTH - player.WIDTH));
-				player.YPos = ClampInt(player.YPos, 0, (SCREEN_HEIGHT - player.HEIGHT));
+				player.xPos = ClampInt(player.xPos, 0, (SCREEN_WIDTH - player.WIDTH));
+				player.yPos = ClampInt(player.yPos, 0, (SCREEN_HEIGHT - player.HEIGHT));
 
 				// Get the two character under the landing gear of the lander
-				char bottomLeftChar = background.CHARACTERS[player.XPos + SCREEN_WIDTH * (player.YPos + (player.HEIGHT - 1))];
-				char bottomRightChar = background.CHARACTERS[(player.XPos + (player.WIDTH - 1)) + SCREEN_WIDTH * (player.YPos + (player.HEIGHT - 1))];
+				char bottomLeftChar = background.CHARACTERS[player.xPos + SCREEN_WIDTH * (player.yPos + (player.HEIGHT - 1))];
+				char bottomRightChar = background.CHARACTERS[(player.xPos + (player.WIDTH - 1)) + SCREEN_WIDTH * (player.yPos + (player.HEIGHT - 1))];
 
 				// Did we land or crash?
 
@@ -274,7 +277,7 @@ void Update()
 			WriteImageToBuffer(consoleBuffer, background.CHARACTERS, nullptr, SCREEN_HEIGHT, SCREEN_WIDTH, 0, 0);
 
 			// Draw player image, (sprite)
-			WriteImageToBuffer(consoleBuffer, player.CHARACTERS, player.COLOURS, player.HEIGHT, player.WIDTH, player.XPos, player.YPos);
+			WriteImageToBuffer(consoleBuffer, player.CHARACTERS, player.COLOURS, player.HEIGHT, player.WIDTH, player.xPos, player.yPos);
 
 			// Draw game over text
 			if (player.hasLanded)
