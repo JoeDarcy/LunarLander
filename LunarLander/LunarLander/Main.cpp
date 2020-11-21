@@ -6,7 +6,7 @@
 // DEFINES
 #define WIDTH 150
 #define HEIGHT 40
-#define FRAME_RATE 30  // Lower values, (around 5) will give a more old school Atari feel to the gameplay
+#define FRAME_RATE 5  // Lower values, (around 5) will give a more old school Atari feel to the gameplay
 
 // CONSOLE PARAMETERS
 #pragma region Console Buffer Params
@@ -210,6 +210,12 @@ const int Key2 = '2';
 const int Key3 = '3';
 const int Key4 = '4';
 
+// Lander acceleration rate
+const float ACCELERATION_RATE = 0.5f;
+
+// Lander deceleration rate
+const float DECELERATION_RATE = 0.2f;
+
 // ENUMS
 enum GAME_STATE
 {
@@ -222,8 +228,8 @@ enum GAME_STATE
 };
 
 // GAME VARIABLES
-int playerXPos = 0;
-int playerYPos = 0;
+int playerXPos = WIDTH /2;
+int playerYPos = 5;
 
 // Bool for exiting the main game loop
 bool exitGame = false;
@@ -238,16 +244,31 @@ unsigned int frameCounter = 0;		// Unsigned can't be negative
 Time previousFrameTime = HiResClock::now();
 
 // Current game state
-GAME_STATE currentGameState = SPLASH;
+GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build
+
+// Splash screen display duration
 float splashDuration = 0.0f;
+
+// Lander acceleration
+bool isAccelerating = false;
+float landerAcceleration = 0.0f;
+
+// Lander has landed successfully
+bool hasLanded = false;
+
+// Lander has crashed
+bool hasCrashed = false; 
+
 
 // FUNCTIONS
 void Update();
 void Draw();
 int ClampInt(int intToClamp, int lowerLimit, int upperLimit);
+float ClampFloat(float floatToClamp, float lowerLimit, float upperLimit);
 void WriteImageToBuffer(CHAR_INFO* consoleBuffer, const char* charsToPrint, const int coloursToPrint[], const int imageHeight, const int imageWidth, int imageXPos, int imageYPos);
 void ClearScreen(CHAR_INFO* consoleBuffer);
 void WriteTextToBuffer(CHAR_INFO* consoleBuffer, std::string stringToPrint, int textXPox, int textYPos);
+
 
 int main()
 {
@@ -356,24 +377,65 @@ void Update()
 			}
 			if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
 			{
-				--playerYPos;
+				isAccelerating = true;
 			}
 			if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
 			{
 				--playerXPos;
-			}
-			if (GetAsyncKeyState(KeyS))	// Checks if player presses "S", moves character down if pressed
-			{
-				++playerYPos;
 			}
 			if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
 			{
 				++playerXPos;
 			}
 
+			// Should lander accelerate?
+			if (isAccelerating)
+			{
+				landerAcceleration += (ACCELERATION_RATE * deltaTime);
+			}
+			else
+			{
+				landerAcceleration -= (DECELERATION_RATE * deltaTime);
+			}
+
+			// Reset acceleration flag, (bool)
+			isAccelerating = false;
+
+			// Clamp lander acceleration
+			landerAcceleration = ClampFloat(landerAcceleration, 0.0f, 1.5f);
+
+			// Apply acceleration to the lander
+			if (landerAcceleration >= 1.0f)			// TODO: Remove magic number, (replace with a const)
+			{
+				playerYPos--;
+			}
+			else if (landerAcceleration < 0.5f)		// TODO: Remove magic number, (replace with a const)
+			{
+				playerYPos++;
+			}
+
 			// Clamp player input (stop them leaving the window and causing an error)
 			playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
 			playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
+
+			// Get the two character under the landing gear of the lander
+			char bottomLeftChar = BackgroundCharacters[playerXPos + WIDTH * (playerYPos + (PlayerHeight - 1))];
+			char bottomRightChar = BackgroundCharacters[(playerXPos + (PlayerWidth -1)) + WIDTH * (playerYPos + (PlayerHeight - 1))];
+
+			// Did we land or crash?
+			
+			// Landed
+			if (bottomLeftChar == '_' && bottomRightChar == '_')
+			{
+				// Landed succeeded!
+				hasLanded = true;
+			}
+			else if (bottomLeftChar != ' ' || bottomRightChar != ' ')
+			{
+				// Crashed!
+				hasCrashed = true;
+			}
+			
 
 			// Clear the previous "frame" before we start to build the next one
 			ClearScreen(consoleBuffer);
@@ -383,6 +445,16 @@ void Update()
 
 			// Draw player image, (sprite)
 			WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
+
+			// Draw game over text
+			if (hasLanded)
+			{
+				WriteTextToBuffer(consoleBuffer, "THE EAGLE HAS LANDED!", (WIDTH / 2) - 15, HEIGHT / 2);
+			}
+			else if (hasCrashed)
+			{
+				WriteTextToBuffer(consoleBuffer, "HOUSTON, WE HAVE A PROBLEM!", (WIDTH / 2) - 18, HEIGHT / 2);
+			}
 
 			// Draw UI text
 			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
@@ -434,6 +506,12 @@ int ClampInt(int intToClamp, int lowerLimit, int upperLimit)
 	{
 		return intToClamp;
 	}
+}
+
+// Clamp float for keeping lander acceleration reasonable
+float ClampFloat(float floatToClamp, float lowerLimit, float upperLimit)
+{
+	return floatToClamp <= lowerLimit ? lowerLimit : floatToClamp >= upperLimit ? upperLimit : floatToClamp;
 }
 
 // Function to write image to buffer ready to be drawn
