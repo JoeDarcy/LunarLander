@@ -120,7 +120,7 @@ void Game::Update(float deltaTime)
 				{
 					player.isAccelerating = true;
 					// Expend fuel
-					player.fuel -= FUEL_CONSUMPTION_RATE;
+					player.fuel -= FUEL_CONSUMPTION_RATE;	
 
 					// Draw thrusters animation if accelerating
 					if (player.isAccelerating)
@@ -132,7 +132,7 @@ void Game::Update(float deltaTime)
 						if (thrusterFlashTimer >= 0.2f)
 						{
 							// Draw thrusters frame 1
-							WriteImageToBuffer(consoleBuffer,  thrusters.CHARACTERS_1, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos + 1, player.yPos - 3);		// Draw order bug, drawing behind player / background?
+							WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_1, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos + 1, player.yPos - 3);		// Draw order bug, drawing behind player / background?
 							thrusterFlashTimer = 0.0f;
 						}
 						else
@@ -234,13 +234,16 @@ void Game::Update(float deltaTime)
 			{
 				WriteTextToBuffer(consoleBuffer, "THE EAGLE HAS LANDED!", (SCREEN_WIDTH / 2) - 15, SCREEN_HEIGHT / 2);
 				WriteTextToBuffer(consoleBuffer, "Press 'Enter' to return to menu...", (SCREEN_WIDTH / 2) - 21, (SCREEN_HEIGHT / 2) + 1);
+
+				// Draw player image, (sprite)
+				WriteImageToBuffer(consoleBuffer, player.CHARACTERS, player.COLOURS, player.HEIGHT, player.WIDTH, player.xPos, player.yPos);
 			}
 			else
 			{
 				// Draw player image, (sprite)
 				WriteImageToBuffer(consoleBuffer, player.CHARACTERS, player.COLOURS, player.HEIGHT, player.WIDTH, player.xPos, player.yPos);
-			}
-			
+			}		
+
 			// Draw UI text
 			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
 			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);

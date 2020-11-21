@@ -7,7 +7,7 @@
 // DEFINES
 #define SCREEN_WIDTH 150
 #define SCREEN_HEIGHT 40
-#define FRAME_RATE 5  // Lower values, (around 5) will give a more old school Atari feel to the gameplay
+#define FRAME_RATE 2	// Lower values, (around 5) will give a more old school Atari feel to the gameplay
 
 // Keys
 const int KEY_ESC = VK_ESCAPE;
