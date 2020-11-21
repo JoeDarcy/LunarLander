@@ -1,6 +1,7 @@
 // INCLUDES
 #include <windows.h>
 #include <chrono>
+#include <string>
 
 // DEFINES
 #define WIDTH 150
@@ -55,7 +56,7 @@ const int PlayerColours[PlayerWidth * PlayerHeight] =
 };
 
 // Create the background for the window
-const char* BackGroundCharacters =
+const char* BackgroundCharacters =
 {	// |1   Guide for background image spacing (line indicates position)																					|150
 	R"(     *       .                         .  *                                                     *                          *    .       *             )"
 	R"(                    *          .          .             *                  *               *        .                        .                    *   )"
@@ -99,7 +100,8 @@ const char* BackGroundCharacters =
 	R"(_/.........x4/........................................................................................................................................)"
 };
 
-/*
+// Potential background colour system
+/* 
 // Define background character colours
 const int PlayerColours[PlayerWidth * PlayerHeight] =
 {
@@ -172,8 +174,9 @@ Time previousFrameTime = HiResClock::now();
 
 // FUNCTIONS
 int ClampInt(int intToClamp, int lowerLimit, int upperLimit);
-
-
+void WriteImageToBuffer(CHAR_INFO* consoleBuffer, const char* charsToPrint, const int coloursToPrint[], const int imageHeight, const int imageWidth, int imageXPos, int imageYPos);
+void ClearScreen(CHAR_INFO* consoleBuffer);
+void WriteTextToBuffer(CHAR_INFO* consoleBuffer, std::string stringToPrint, int textXPox, int textYPos);
 
 int main()
 {
@@ -227,32 +230,18 @@ int main()
 			playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
 
 			// Clear the previous "frame" before we start to build the next one
-			for (int i = 0; i < (WIDTH * HEIGHT); i++)
-			{
-				consoleBuffer[i].Char.AsciiChar = 0;
-				consoleBuffer[i].Attributes = 0;
-			}
+			ClearScreen(consoleBuffer);
 
 			// Draw background image
-			for (int y = 0; y < HEIGHT; y++)
-			{
-				for (int x = 0; x < WIDTH; x++)
-				{
-					consoleBuffer[x + WIDTH * y].Char.AsciiChar = BackGroundCharacters[x + WIDTH * y];
-					consoleBuffer[x + WIDTH * y].Attributes = 7;	// Sets all background chars to white, (add colour array for background image later)
-				}
-			}
-
+			WriteImageToBuffer(consoleBuffer, BackgroundCharacters, nullptr, HEIGHT, WIDTH, 0, 0);		
 
 			// Draw player image, (sprite)
-			for (int y = 0; y < PlayerHeight; y++)
-			{
-				for (int x = 0; x < PlayerWidth; x++)
-				{
-					consoleBuffer[(playerXPos + x) + WIDTH * (playerYPos + y)].Char.AsciiChar = PlayerCharacters[x + PlayerWidth * y];
-					consoleBuffer[(playerXPos + x) + WIDTH * (playerYPos + y)].Attributes = PlayerColours[x + PlayerWidth * y];
-				}
-			}
+			WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
+
+			// Draw UI text
+			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
+			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
+			WriteTextToBuffer(consoleBuffer, "FUEL: ", 1, 2);
 
 			// Draw the console buffer array to the screen, (rendering to the screen / "Kick the draw")
 			WriteConsoleOutputA(wHnd, consoleBuffer, characterBufferSize, characterPosition, &consoleWriteArea);
@@ -276,5 +265,45 @@ int ClampInt(int intToClamp, int lowerLimit, int upperLimit)
 	else
 	{
 		return intToClamp;
+	}
+}
+
+// Function to write image to buffer ready to be drawn
+void WriteImageToBuffer(CHAR_INFO* consoleBuffer, const char* charsToPrint, const int coloursToPrint[], const int imageHeight, const int imageWidth, int imageXPos, int imageYPos)
+{
+	for (int y = 0; y < imageHeight; y++)
+	{
+		for (int x = 0; x < imageWidth; x++)
+		{
+			consoleBuffer[(imageXPos + x) + WIDTH * (imageYPos + y)].Char.AsciiChar = charsToPrint[x + imageWidth * y];
+			if (coloursToPrint)
+			{
+				consoleBuffer[(imageXPos + x) + WIDTH * (imageYPos + y)].Attributes = coloursToPrint[x + imageWidth * y];
+			}
+			else
+			{
+				consoleBuffer[(imageXPos + x) + WIDTH * (imageYPos + y)].Attributes = 7;
+			}			
+		}
+	}
+}
+
+// Function to clear the screen before redrawing it
+void ClearScreen(CHAR_INFO* consoleBuffer)
+{
+	for (int i = 0; i < (WIDTH * HEIGHT); i++)
+	{
+		consoleBuffer[i].Char.AsciiChar = 0;
+		consoleBuffer[i].Attributes = 0;
+	}
+}
+
+// Function to write text to the screen
+void WriteTextToBuffer(CHAR_INFO* consoleBuffer, std::string stringToPrint, int textXPox, int textYPos)
+{
+	for (int x = 0; x < stringToPrint.length(); x++)
+	{
+		consoleBuffer[(textXPox + x) + WIDTH * textYPos].Char.AsciiChar = stringToPrint[x];
+		consoleBuffer[(textXPox + x) + WIDTH * textYPos].Attributes = 0xF;
 	}
 }
