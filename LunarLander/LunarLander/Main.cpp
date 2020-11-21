@@ -173,6 +173,8 @@ Time previousFrameTime = HiResClock::now();
 
 
 // FUNCTIONS
+void Update();
+void Draw();
 int ClampInt(int intToClamp, int lowerLimit, int upperLimit);
 void WriteImageToBuffer(CHAR_INFO* consoleBuffer, const char* charsToPrint, const int coloursToPrint[], const int imageHeight, const int imageWidth, int imageXPos, int imageYPos);
 void ClearScreen(CHAR_INFO* consoleBuffer);
@@ -200,57 +202,72 @@ int main()
 
 		if (deltaTime >= (1.0f / FRAME_RATE))
 		{
+			// Calls the Update function for the application
+			Update();
+
 			// Cache the timestamp of this frame
-			previousFrameTime = currentFrameTime;
+			previousFrameTime = currentFrameTime;	
+		}	
 
-			// Get player input
-			if (GetAsyncKeyState(KeyEsc))	// Checks if player presses "Escape", quits game if pressed
-			{
-				exitGame = true;
-			}
-			if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
-			{
-				--playerYPos;
-			}
-			if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
-			{
-				--playerXPos;
-			}
-			if (GetAsyncKeyState(KeyS))	// Checks if player presses "S", moves character down if pressed
-			{
-				++playerYPos;
-			}
-			if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
-			{
-				++playerXPos;
-			}
-
-			// Clamp player input (stop them leaving the window and causing an error)
-			playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
-			playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
-
-			// Clear the previous "frame" before we start to build the next one
-			ClearScreen(consoleBuffer);
-
-			// Draw background image
-			WriteImageToBuffer(consoleBuffer, BackgroundCharacters, nullptr, HEIGHT, WIDTH, 0, 0);		
-
-			// Draw player image, (sprite)
-			WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
-
-			// Draw UI text
-			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
-			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
-			WriteTextToBuffer(consoleBuffer, "FUEL: ", 1, 2);
-
-			// Draw the console buffer array to the screen, (rendering to the screen / "Kick the draw")
-			WriteConsoleOutputA(wHnd, consoleBuffer, characterBufferSize, characterPosition, &consoleWriteArea);
-		}		
+		// Calls the Draw function
+		Draw();
 	}
 	return 0;
 }
 
+// Update function for the main game loop
+void Update()
+{
+	// Get player input
+	if (GetAsyncKeyState(KeyEsc))	// Checks if player presses "Escape", quits game if pressed
+	{
+		exitGame = true;
+	}
+	if (GetAsyncKeyState(KeyW))		// Checks if player presses "W", moves character up if pressed
+	{
+		--playerYPos;
+	}
+	if (GetAsyncKeyState(KeyA))	// Checks if player presses "A", moves character left if pressed
+	{
+		--playerXPos;
+	}
+	if (GetAsyncKeyState(KeyS))	// Checks if player presses "S", moves character down if pressed
+	{
+		++playerYPos;
+	}
+	if (GetAsyncKeyState(KeyD))	// Checks if player presses "D", moves character right if pressed
+	{
+		++playerXPos;
+	}
 
+	// Clamp player input (stop them leaving the window and causing an error)
+	playerXPos = ClampInt(playerXPos, 0, (WIDTH - PlayerWidth));
+	playerYPos = ClampInt(playerYPos, 0, (HEIGHT - PlayerHeight));
+
+	// Clear the previous "frame" before we start to build the next one
+	ClearScreen(consoleBuffer);
+
+	// Draw background image
+	WriteImageToBuffer(consoleBuffer, BackgroundCharacters, nullptr, HEIGHT, WIDTH, 0, 0);
+
+	// Draw player image, (sprite)
+	WriteImageToBuffer(consoleBuffer, PlayerCharacters, PlayerColours, PlayerHeight, PlayerWidth, playerXPos, playerYPos);
+
+	// Draw UI text
+	WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
+	WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
+	WriteTextToBuffer(consoleBuffer, "FUEL: ", 1, 2);
+}
+
+// Draw funtion for rendering the buffer to the screen
+void Draw()
+{
+	// Draw the console buffer array to the screen, (rendering to the screen / "Kick the draw")
+	WriteConsoleOutputA(wHnd, consoleBuffer, characterBufferSize, characterPosition, &consoleWriteArea);
+}
+
+
+#pragma region UTILITY FUNCTIONS
 // Function to limit player movement to prevent overfolw
 int ClampInt(int intToClamp, int lowerLimit, int upperLimit)
 {
@@ -307,3 +324,4 @@ void WriteTextToBuffer(CHAR_INFO* consoleBuffer, std::string stringToPrint, int 
 		consoleBuffer[(textXPox + x) + WIDTH * textYPos].Attributes = 0xF;
 	}
 }
+#pragma endregion
