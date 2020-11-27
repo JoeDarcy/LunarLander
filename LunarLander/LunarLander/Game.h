@@ -46,7 +46,7 @@ private:
 
 	// GAME VARIABLES
 	// Current game state
-	GAME_STATE currentGameState = PLAY;		// SPLASH emun class instead?    Change to SPLASH for build 
+	GAME_STATE currentGameState = SPLASH;		// SPLASH emun class instead?    Change to SPLASH for build 
 
 	// Connect struct back into the main game 
 	// Background

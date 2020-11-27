@@ -99,8 +99,15 @@ void Game::Update(float deltaTime)
 				exitGame = true;
 			}
 
-			// Get player input and quit game if enter is pressed
+			// Get player input and return to menu if enter is pressed while crashed
 			if (player.hasCrashed && GetAsyncKeyState(KEY_ENTER))
+			{
+				player.Reset();
+				currentGameState = MENU;
+			}
+
+			// Get player input and return to menu if enter is pressed while landed
+			if (player.hasLanded && GetAsyncKeyState(KEY_ENTER))
 			{
 				player.Reset();
 				currentGameState = MENU;
