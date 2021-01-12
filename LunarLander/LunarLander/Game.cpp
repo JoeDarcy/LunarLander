@@ -24,9 +24,9 @@ void Game::Initialise()
 }
 
 // Update function for the main game loop
-void Game::Update(float deltaTime)
+bool Game::Update(float deltaTime)
 {
-	static bool exitGame = false;
+	bool exitGame = false;
 
 	// Switch depending on the current game state
 	switch (currentGameState)
@@ -66,6 +66,18 @@ void Game::Update(float deltaTime)
 
 			if (GetAsyncKeyState(KEY_1))
 			{
+				// Reset player fuel
+				player.fuel = 50;
+
+				// Reset gameplay timer
+				player.time = 0;
+
+				// Reset score
+				player.score = 0;
+
+				// Reset lives
+				player.lives = 3;
+
 				currentGameState = PLAY;
 			}
 			else if (GetAsyncKeyState(KEY_2))
@@ -93,6 +105,9 @@ void Game::Update(float deltaTime)
 		}
 		case PLAY:
 		{
+			// Gameplay timer
+			player.time += deltaTime;
+
 			// Get player input and quit game if escape is pressed
 			if (GetAsyncKeyState(KEY_ESC))
 			{
@@ -127,27 +142,7 @@ void Game::Update(float deltaTime)
 				{
 					player.isAccelerating = true;
 					// Expend fuel
-					player.fuel -= FUEL_CONSUMPTION_RATE;	
-
-					// Draw thrusters animation if accelerating
-					if (player.isAccelerating)
-					{
-						static float thrusterFlashTimer = 0.0f;
-
-						thrusterFlashTimer += deltaTime;
-
-						if (thrusterFlashTimer >= 0.2f)
-						{
-							// Draw thrusters frame 1
-							WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_1, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos + 1, player.yPos - 3);		// Draw order bug, drawing behind player / background?
-							thrusterFlashTimer = 0.0f;
-						}
-						else
-						{
-							// Draw thrusters frame 2
-							WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_2, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos, player.yPos);
-						}
-					}
+					player.fuel -= FUEL_CONSUMPTION_RATE;						
 				}
 				if (GetAsyncKeyState(KEY_A))	// Checks if player presses "A", moves character left if pressed
 				{
@@ -167,9 +162,6 @@ void Game::Update(float deltaTime)
 				{
 					player.acceleration -= (DECELERATION_RATE * deltaTime);
 				}
-
-				// Reset acceleration flag, (bool)
-				player.isAccelerating = false;
 
 				// Clamp lander acceleration
 				player.acceleration = ClampFloat(player.acceleration, 0.0f, 1.5f);
@@ -200,7 +192,7 @@ void Game::Update(float deltaTime)
 					// Landed succeeded!
 					player.hasLanded = true;
 				}
-				else if (bottomLeftChar != ' ' || bottomRightChar != ' ')
+				else if (bottomLeftChar == '\\' || bottomRightChar == '/')
 				{
 					// Crashed!
 					player.hasCrashed = true;					
@@ -214,6 +206,29 @@ void Game::Update(float deltaTime)
 			// Draw background image
 			WriteImageToBuffer(consoleBuffer, background.CHARACTERS, nullptr, SCREEN_HEIGHT, SCREEN_WIDTH, 0, 0);
 
+			// Draw thrusters animation if accelerating
+			if (player.isAccelerating)
+			{
+				static float thrusterFlashTimer = 0.0f;
+
+				thrusterFlashTimer += deltaTime;
+
+				if (thrusterFlashTimer >= 0.2f)
+				{
+					// Draw thrusters frame 1
+					WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_1, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos, player.yPos + 3);		// Draw order bug, drawing behind player / background?
+					thrusterFlashTimer = 0.0f;
+				}
+				else
+				{
+					// Draw thrusters frame 2
+					WriteImageToBuffer(consoleBuffer, thrusters.CHARACTERS_2, thrusters.COLOURS, thrusters.HEIGHT, thrusters.WIDTH, player.xPos, player.yPos + 3);
+				}
+
+				// Reset acceleration flag, (bool)
+				player.isAccelerating = false;
+			}
+
 			// Draw explosion animation if crashed
 			if (player.hasCrashed)
 			{
@@ -221,7 +236,7 @@ void Game::Update(float deltaTime)
 				
 				explosionFlashTimer += deltaTime;
 
-				if (explosionFlashTimer >= 0.5f)
+				if (explosionFlashTimer >= 0.5f)		// Modulus frame rate counter
 				{
 					// Draw explosion frame 1
 					WriteImageToBuffer(consoleBuffer, explosion.CHARACTERS_1, explosion.COLOURS, explosion.HEIGHT, explosion.WIDTH, player.xPos, player.yPos);
@@ -252,9 +267,10 @@ void Game::Update(float deltaTime)
 			}		
 
 			// Draw UI text
-			WriteTextToBuffer(consoleBuffer, "SCORE: ", 1, 0);
-			WriteTextToBuffer(consoleBuffer, "TIME: ", 1, 1);
+			WriteTextToBuffer(consoleBuffer, "SCORE: " + std::to_string(player.score), 1, 0);
+			WriteTextToBuffer(consoleBuffer, "TIME: " + std::to_string(player.time), 1, 1);			
 			WriteTextToBuffer(consoleBuffer, "FUEL: " + std::to_string(player.fuel), 1, 2);
+			WriteTextToBuffer(consoleBuffer, "LIVES: " + std::to_string(player.lives), 1, 3);
 
 			break;
 		}
@@ -269,6 +285,7 @@ void Game::Update(float deltaTime)
 			break;
 		}
 	}
+	return exitGame;
 }
 
 // Draw funtion for rendering the buffer to the screen

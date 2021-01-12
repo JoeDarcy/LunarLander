@@ -1,4 +1,4 @@
-#ifndef GAME_OBJECT_H
+﻿#ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
 // Headers
@@ -58,8 +58,17 @@ struct Player
 	// Lander has crashed
 	bool hasCrashed = false;
 
+	// Lander score
+	int score = 0;
+
+	// Gameplay time
+	float time = 0;
+
 	// Lander fuel
 	float fuel = 50;
+
+	// Player lives
+	int lives = 3;
 };
 
 struct Thrusters

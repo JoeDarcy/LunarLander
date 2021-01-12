@@ -11,7 +11,7 @@ public:
 	// Functions
 	Game();
 	void Initialise();
-	void Update(float deltaTime);
+	bool Update(float deltaTime);
 	void Draw();
 
 private:

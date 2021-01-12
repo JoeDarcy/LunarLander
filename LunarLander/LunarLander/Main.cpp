@@ -23,8 +23,8 @@ int main()
 
 	// Display characters to the console window, (main game loop)
 	// Bool for exiting the main game loop
-	bool exitGame = false;
-	while (!exitGame)
+	bool exit = false;
+	while (!exit)
 	{
 		// Calculate delta time (time since last frame)
 		currentFrameTime = HiResClock::now();
@@ -34,7 +34,7 @@ int main()
 		if (deltaTime >= (1.0f / FRAME_RATE))
 		{
 			// Calls the Update function for the application
-			gameInstance.Update(deltaTime);
+			exit = gameInstance.Update(deltaTime);
 
 			// Cache the timestamp of this frame
 			previousFrameTime = currentFrameTime;	
